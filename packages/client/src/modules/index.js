@@ -11,6 +11,7 @@ import pageNotFound from './pageNotFound';
 import pagination from './pagination';
 import chat from './chat';
 import './favicon';
+import './pwa';
 
 import ClientModule from './ClientModule';
 
