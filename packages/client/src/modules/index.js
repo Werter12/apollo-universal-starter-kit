@@ -9,6 +9,7 @@ import contact from './contact';
 import pageNotFound from './pageNotFound';
 import pagination from './pagination';
 import './favicon';
+import './pwa';
 
 import ClientModule from './ClientModule';
 
