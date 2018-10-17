@@ -9,6 +9,7 @@ import { SubscriptionClient } from 'subscriptions-transport-ws';
 import ApolloClient from 'apollo-client';
 import ApolloCacheRouter from 'apollo-cache-router';
 import { hasDirectives } from 'apollo-utilities';
+import { RetryLink } from 'apollo-link-retry';
 
 import log from './log';
 import settings from '../../settings';
@@ -93,7 +94,28 @@ const createApolloClient = ({ apiUrl, createNetLink, links, connectionParams, cl
 
   const linkState = withClientState({ ...clientResolvers, cache });
 
-  const allLinks = [...(links || []), linkState, apiLink];
+  const retryLink = new RetryLink({
+    delay: {
+      initial: 300,
+      max: Infinity,
+      jitter: true
+    },
+    attempts: {
+      max: 3,
+      retryIf: (error, _operation) => {
+        console.log('retryIf1', error);
+        console.log('retryIf2', _operation);
+      }
+    }
+  });
+
+  if (typeof window !== 'undefined') {
+    console.log('window1111');
+    window.addEventListener('offline', () => console.log('offline!!!!!'));
+    window.addEventListener('online', () => console.log('online!!!!!'));
+  }
+
+  const allLinks = [...(links || []), linkState, retryLink, apiLink];
 
   if (settings.app.logging.apolloLogging && (!__TEST__ || typeof window !== 'undefined')) {
     allLinks.unshift(new LoggingLink({ logger: log.debug.bind(log) }));
