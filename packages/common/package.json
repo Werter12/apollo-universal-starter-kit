@@ -30,7 +30,8 @@
     "redux": "^4.0.0",
     "redux-devtools-extension": "^2.13.2",
     "subscriptions-transport-ws": "^0.9.4",
-    "apollo-link-retry":"^2.2.5"
+    "apollo-link-retry":"^2.2.5",
+    "apollo-link-queue":"^2.1.0"
   },
   "devDependencies": {
     "@types/i18next-browser-languagedetector": "^2.0.1",

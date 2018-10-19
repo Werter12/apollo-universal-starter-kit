@@ -10,6 +10,7 @@ import ApolloClient from 'apollo-client';
 import ApolloCacheRouter from 'apollo-cache-router';
 import { hasDirectives } from 'apollo-utilities';
 import { RetryLink } from 'apollo-link-retry';
+import QueueLink from 'apollo-link-queue';
 
 import log from './log';
 import settings from '../../settings';
@@ -109,13 +110,23 @@ const createApolloClient = ({ apiUrl, createNetLink, links, connectionParams, cl
     }
   });
 
+  const offlineLink = new QueueLink();
+
   if (typeof window !== 'undefined') {
     console.log('window1111');
-    window.addEventListener('offline', () => console.log('offline!!!!!'));
-    window.addEventListener('online', () => console.log('online!!!!!'));
+    window.addEventListener('offline', () => {
+      offlineLink.close();
+
+      console.log('offline!!!!!');
+    });
+    window.addEventListener('online', () => {
+      offlineLink.open();
+
+      console.log('online!!!!!');
+    });
   }
 
-  const allLinks = [...(links || []), linkState, retryLink, apiLink];
+  const allLinks = [...(links || []), linkState, retryLink, offlineLink, apiLink];
 
   if (settings.app.logging.apolloLogging && (!__TEST__ || typeof window !== 'undefined')) {
     allLinks.unshift(new LoggingLink({ logger: log.debug.bind(log) }));
