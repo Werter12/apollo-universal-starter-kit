@@ -11,9 +11,23 @@ import ApolloCacheRouter from 'apollo-cache-router';
 import { hasDirectives } from 'apollo-utilities';
 import { RetryLink } from 'apollo-link-retry';
 import QueueLink from 'apollo-link-queue';
+import { CachePersistor } from 'apollo-cache-persist';
 
 import log from './log';
 import settings from '../../settings';
+
+/*const persistCacheData = async cache => {
+  try {
+    // See above for additional options, including other storage providers.
+    await persistCache({
+      cache,
+      storage: window.localStorage,
+      debug: true
+    });
+  } catch (error) {
+    console.error('Error restoring Apollo cache', error);
+  }
+};*/
 
 const createApolloClient = ({ apiUrl, createNetLink, links, connectionParams, clientResolvers }) => {
   const netCache = new InMemoryCache();
@@ -93,25 +107,8 @@ const createApolloClient = ({ apiUrl, createNetLink, links, connectionParams, cl
     );
   }
 
-  const linkState = withClientState({ ...clientResolvers, cache });
-
-  const retryLink = new RetryLink({
-    delay: {
-      initial: 300,
-      max: Infinity,
-      jitter: true
-    },
-    attempts: {
-      max: 3,
-      retryIf: (error, _operation) => {
-        console.log('retryIf1', error);
-        console.log('retryIf2', _operation);
-      }
-    }
-  });
-
   const offlineLink = new QueueLink();
-
+  let persistor;
   if (typeof window !== 'undefined') {
     console.log('window1111');
     window.addEventListener('offline', () => {
@@ -124,7 +121,39 @@ const createApolloClient = ({ apiUrl, createNetLink, links, connectionParams, cl
 
       console.log('online!!!!!');
     });
+    try {
+      // See above for additional options, including other storage providers.
+      persistor = new CachePersistor({
+        cache,
+        storage: window.localStorage,
+        debug: true
+      });
+      persistor.persist();
+    } catch (error) {
+      console.error('Error restoring Apollo cache', error);
+    }
   }
+
+  const retryLink = new RetryLink({
+    delay: {
+      initial: 300,
+      max: Infinity,
+      jitter: true
+    },
+    attempts: {
+      max: 3,
+      retryIf: (error, _operation) => {
+        persistor.restore();
+        console.log('retryIf1', error);
+        console.log('retryIf2', _operation);
+        if (error.includes('Failed to fetch')) {
+          return false;
+        }
+      }
+    }
+  });
+
+  const linkState = withClientState({ ...clientResolvers, cache });
 
   const allLinks = [...(links || []), linkState, retryLink, offlineLink, apiLink];
 
