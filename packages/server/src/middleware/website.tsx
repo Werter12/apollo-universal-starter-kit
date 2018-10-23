@@ -61,6 +61,7 @@ const Html = ({ content, state, css, clientModules, helmet }: HtmlProps) => (
     </head>
     <body {...helmet.bodyAttributes.toComponent()}>
       <div id="root" dangerouslySetInnerHTML={{ __html: content || '' }} />
+      <script src="assets.json" type="application/json" />
       <script src="initServiceWorker.js" />
       <script
         dangerouslySetInnerHTML={{

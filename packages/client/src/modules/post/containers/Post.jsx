@@ -144,7 +144,8 @@ export default compose(
     options: () => {
       return {
         variables: { limit: limit, after: 0 },
-        fetchPolicy: 'cache-and-network'
+        fetchPolicy: 'cache-and-network',
+        errorPolicy: 'all'
       };
     },
     props: ({ data }) => {
@@ -173,7 +174,10 @@ export default compose(
           }
         });
       };
-      if (error) throw new Error(error);
+      if (error && !error.includes('Network error')) {
+        console.log('error', error);
+        throw new Error(error);
+      }
       return { loading, posts, subscribeToMore, loadData };
     }
   }),

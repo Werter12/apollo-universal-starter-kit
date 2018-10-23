@@ -25,7 +25,8 @@
     "redux-devtools-extension": "^2.13.2",
     "subscriptions-transport-ws": "^0.9.4",
     "apollo-link-retry":"^2.2.5",
-    "apollo-link-queue":"^2.1.0"
+    "apollo-link-queue":"^2.1.0",
+    "apollo-cache-persist": "^0.1.1"
   },
   "devDependencies": {
     "eslint": "^4.13.1"
