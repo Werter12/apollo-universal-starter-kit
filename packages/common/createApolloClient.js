@@ -16,18 +16,19 @@ import { CachePersistor } from 'apollo-cache-persist';
 import log from './log';
 import settings from '../../settings';
 
-/*const persistCacheData = async cache => {
+const persistCacheData = cache => {
   try {
     // See above for additional options, including other storage providers.
-    await persistCache({
+    const persistor = new CachePersistor({
       cache,
       storage: window.localStorage,
       debug: true
     });
+    persistor.restore();
   } catch (error) {
     console.error('Error restoring Apollo cache', error);
   }
-};*/
+};
 
 const createApolloClient = ({ apiUrl, createNetLink, links, connectionParams, clientResolvers }) => {
   const netCache = new InMemoryCache();
@@ -108,7 +109,6 @@ const createApolloClient = ({ apiUrl, createNetLink, links, connectionParams, cl
   }
 
   const offlineLink = new QueueLink();
-  let persistor;
   if (typeof window !== 'undefined') {
     console.log('window1111');
     window.addEventListener('offline', () => {
@@ -121,17 +121,7 @@ const createApolloClient = ({ apiUrl, createNetLink, links, connectionParams, cl
 
       console.log('online!!!!!');
     });
-    try {
-      // See above for additional options, including other storage providers.
-      persistor = new CachePersistor({
-        cache,
-        storage: window.localStorage,
-        debug: true
-      });
-      persistor.persist();
-    } catch (error) {
-      console.error('Error restoring Apollo cache', error);
-    }
+    persistCacheData(cache);
   }
 
   const retryLink = new RetryLink({
@@ -143,12 +133,14 @@ const createApolloClient = ({ apiUrl, createNetLink, links, connectionParams, cl
     attempts: {
       max: 3,
       retryIf: (error, _operation) => {
-        persistor.restore();
         console.log('retryIf1', error);
         console.log('retryIf2', _operation);
-        if (error.includes('Failed to fetch')) {
-          return false;
+        console.log('error111', error.message);
+        if (error.message.includes('Failed to fetch') && _operation.query.posts) {
+          console.log('aaaa111');
+          return true;
         }
+        return false;
       }
     }
   });

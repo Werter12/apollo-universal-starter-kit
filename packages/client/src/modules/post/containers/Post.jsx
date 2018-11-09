@@ -174,7 +174,7 @@ export default compose(
           }
         });
       };
-      if (error && !error.includes('Network error')) {
+      if (error && !error.message.includes('Failed to fetch')) {
         console.log('error', error);
         throw new Error(error);
       }
