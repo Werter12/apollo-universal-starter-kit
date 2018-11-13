@@ -95,6 +95,9 @@ class Post extends React.Component {
         this.subscribeToPostList(endCursor);
       }
     }
+    if (typeof this.props.posts === 'undefined') {
+      this.props.refetch();
+    }
   }
 
   componentWillUnmount() {
@@ -149,7 +152,8 @@ export default compose(
       };
     },
     props: ({ data }) => {
-      const { loading, error, posts, fetchMore, subscribeToMore } = data;
+      const { loading, error, posts, fetchMore, subscribeToMore, refetch } = data;
+
       const loadData = (after, dataDelivery) => {
         return fetchMore({
           variables: {
@@ -178,7 +182,7 @@ export default compose(
         console.log('error', error);
         throw new Error(error);
       }
-      return { loading, posts, subscribeToMore, loadData };
+      return { loading, posts, subscribeToMore, loadData, refetch };
     }
   }),
   graphql(DELETE_POST, {

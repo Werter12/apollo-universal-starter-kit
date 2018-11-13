@@ -131,17 +131,7 @@ const createApolloClient = ({ apiUrl, createNetLink, links, connectionParams, cl
       jitter: true
     },
     attempts: {
-      max: 3,
-      retryIf: (error, _operation) => {
-        console.log('retryIf1', error);
-        console.log('retryIf2', _operation);
-        console.log('error111', error.message);
-        if (error.message.includes('Failed to fetch') && _operation.query.posts) {
-          console.log('aaaa111');
-          return true;
-        }
-        return false;
-      }
+      max: 1
     }
   });
 

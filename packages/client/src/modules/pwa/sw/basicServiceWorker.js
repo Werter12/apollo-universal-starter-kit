@@ -22,7 +22,7 @@ function precacheStaticAssets() {
   return fetch(ASSET_MANIFEST_URL)
     .then(response => response.json())
     .then(val => {
-      console.log('response1', val);
+   //   console.log('response1', val);
       return val;
     })
     .then(values =>
@@ -31,7 +31,7 @@ function precacheStaticAssets() {
         .map(fileKey => values[fileKey])
     )
     .then(assetManifest => {
-      console.log('assetManifest', assetManifest);
+    //  console.log('assetManifest', assetManifest);
       assetManifest.push('/vendor_web_05571d3fb75dd032bb1e_dll.js');
       assetManifest.push('/');
       caches.open(ALL_CACHES.prefetch).then(cache => {
@@ -54,7 +54,7 @@ function removeUnusedCaches(cacheNamesToKeep) {
       return list;
     }, []);
     if (toDelete.length > 0) {
-      console.log('SW: Deleting old caches', toDelete);
+     // console.log('SW: Deleting old caches', toDelete);
       return Promise.all(toDelete.map(c => caches.delete(c)));
     } else {
       return Promise.resolve();
@@ -62,21 +62,21 @@ function removeUnusedCaches(cacheNamesToKeep) {
   });
 }
 self.addEventListener('install', function(event) {
-  console.log('install');
+ // console.log('install');
 
   event.waitUntil(precacheStaticAssets());
 });
 
 self.addEventListener('activate', function(event) {
-  console.log('activate');
+ // console.log('activate');
   event.waitUntil(removeUnusedCaches(ALL_CACHES.prefetch));
 });
 
 self.addEventListener('fetch', function(event) {
   const BASE_URL = 'http://localhost:3000';
-  console.log('event', event);
+//  console.log('event', event);
   if (event.request.method === 'GET' && event.request.headers.get('accept').indexOf('text/html') !== -1) {
-    console.log('I am here', event.request);
+ //   console.log('I am here', event.request);
     event.respondWith(
       fetch(event.request).catch(function(e) {
         return caches.open(ALL_CACHES.prefetch).then(function(cache) {
@@ -86,7 +86,7 @@ self.addEventListener('fetch', function(event) {
     );
   } else if (RegExp('.js', 'g').test(event.request.url)) {
     const val = event.request.url.replace(/http:\/\/localhost:3000/gi, '');
-    console.log('yeaaaaaaa', event.request, val);
+  //  console.log('yeaaaaaaa', event.request, val);
     event.respondWith(
       fetch(event.request).catch(function(e) {
         return caches.open(ALL_CACHES.prefetch).then(function(cache) {
