@@ -1,3 +1,4 @@
+import commonModules from '../../../common/modules';
 import cookies from './cookies';
 import i18n from './i18n';
 import counter from './counter';
@@ -7,12 +8,14 @@ import user from './user';
 import subscription from './payments';
 import contact from './contact';
 import mailer from './mailer';
+import chat from './chat';
 import graphqlTypes from './graphqlTypes';
 import './debug';
 
 import ServerModule from './ServerModule';
 
 export default new ServerModule(
+  commonModules,
   cookies,
   i18n,
   counter,
@@ -22,5 +25,6 @@ export default new ServerModule(
   subscription,
   contact,
   mailer,
+  chat,
   graphqlTypes
 );
