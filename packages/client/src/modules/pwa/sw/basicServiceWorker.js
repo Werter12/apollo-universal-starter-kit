@@ -5,6 +5,8 @@
 const CACHE_VERSION = 2;
 const CACHE_PREFIX = `FEG-v${CACHE_VERSION}`;
 const ASSET_MANIFEST_URL = 'assets.json';
+const INDEX_HTML_PATH = '/';
+const INDEX_HTML_URL =  new URL(INDEX_HTML_PATH, self.location).toString();
 
 const ALL_CACHES = {
   fallbackImages: cacheName('FALLBACK_IMAGES'),
@@ -73,14 +75,15 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-  const BASE_URL = 'http://localhost:3000';
+  const isHtmlRequest = event.request.headers.get('accept').indexOf('text/html') !== -1;
+  const isLocal = new URL(event.request.url).origin === location.origin;
 //  console.log('event', event);
-  if (event.request.method === 'GET' && event.request.headers.get('accept').indexOf('text/html') !== -1) {
+  if (isHtmlRequest && isLocal) {
  //   console.log('I am here', event.request);
     event.respondWith(
       fetch(event.request).catch(function(e) {
         return caches.open(ALL_CACHES.prefetch).then(function(cache) {
-          return cache.match('/');
+          return cache.match(INDEX_HTML_URL);
         });
       })
     );
